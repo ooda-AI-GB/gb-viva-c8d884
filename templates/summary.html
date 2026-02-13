@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+    <h1>Meeting Summary</h1>
+
+    <div class="summary-stat">
+        <span class="stat-label">Total Duration</span>
+        <span class="mono">{{ duration_str }}</span>
+    </div>
+
+    <div class="summary-stat">
+        <span class="stat-label">Final Cost</span>
+        <span class="mono big-number" style="font-size: 2.5rem;">${{ "%.2f"|format(total_cost) }}</span>
+    </div>
+
+    <div class="summary-stat">
+        <span class="stat-label">Total Participants</span>
+        <span class="mono">{{ attendee_count }}</span>
+    </div>
+
+    <br><br>
+    <a href="/setup" class="btn">Start New Meeting</a>
+</div>
+{% endblock %}

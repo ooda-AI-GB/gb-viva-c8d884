@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+    <h1>Meeting In Progress</h1>
+
+    <div class="timer-display mono" id="timer">00:00:00</div>
+    <div class="big-number mono" id="cost">$0.00</div>
+    
+    <div style="text-align: center; color: #888; margin-bottom: 30px;">
+        Burning Rate: <span class="mono" style="color: #fff;">${{ "%.2f"|format(total_hourly_rate) }}/hr</span>
+    </div>
+
+    <h3>Attendees ({{ attendees|length }})</h3>
+    <div class="attendee-list">
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th style="text-align: right;">Rate</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for attendee in attendees %}
+                <tr>
+                    <td>{{ attendee.name }}</td>
+                    <td style="text-align: right;" class="mono">${{ "%.2f"|format(attendee.hourly_rate) }}/hr</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <form action="/stop" method="post" style="margin-top: 20px;">
+        <button type="submit" class="btn btn-danger">Stop Meeting</button>
+    </form>
+</div>
+
+<script>
+    // Server-provided data
+    const startTimeTs = {{ start_time_ts }}; // Timestamp in seconds
+    const totalHourlyRate = {{ total_hourly_rate }};
+    const ratePerSecond = totalHourlyRate / 3600;
+
+    const startTime = startTimeTs * 1000; // Convert to ms
+    
+    const timerEl = document.getElementById('timer');
+    const costEl = document.getElementById('cost');
+
+    function update() {
+        const now = new Date().getTime();
+        const elapsedMs = now - startTime;
+        const elapsedSeconds = Math.max(0, elapsedMs / 1000); // Prevent negative if clocks slightly off
+
+        // Update Timer
+        const hours = Math.floor(elapsedSeconds / 3600);
+        const minutes = Math.floor((elapsedSeconds % 3600) / 60);
+        const seconds = Math.floor(elapsedSeconds % 60);
+        
+        timerEl.textContent = 
+            String(hours).padStart(2, '0') + ':' + 
+            String(minutes).padStart(2, '0') + ':' + 
+            String(seconds).padStart(2, '0');
+
+        // Update Cost
+        const currentCost = elapsedSeconds * ratePerSecond;
+        costEl.textContent = '$' + currentCost.toFixed(2);
+    }
+
+    // Update immediately and then every second
+    update();
+    setInterval(update, 1000); // Update every second to match seconds display
+    
+    // For smoother cost updates (optional, runs at 10fps for cost visual)
+    setInterval(() => {
+        const now = new Date().getTime();
+        const elapsedMs = now - startTime;
+        const elapsedSeconds = Math.max(0, elapsedMs / 1000);
+        const currentCost = elapsedSeconds * ratePerSecond;
+        costEl.textContent = '$' + currentCost.toFixed(2);
+    }, 100);
+</script>
+{% endblock %}

@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+    <h1>New Meeting Setup</h1>
+    
+    <form action="/start" method="post" id="setupForm">
+        <div id="attendees-container">
+            <div class="attendee-row">
+                <input type="text" name="names" placeholder="Attendee Name" required style="flex: 2;">
+                <input type="number" name="rates" placeholder="Hourly Rate ($)" step="0.01" min="0" required style="flex: 1;">
+                <button type="button" class="btn btn-danger" style="width: auto; padding: 0 15px;" onclick="removeRow(this)">X</button>
+            </div>
+        </div>
+
+        <button type="button" class="btn btn-secondary" onclick="addAttendee()">+ Add Attendee</button>
+        <br><br>
+        <button type="submit" class="btn">Start Meeting</button>
+    </form>
+</div>
+
+<script>
+    function addAttendee() {
+        const container = document.getElementById('attendees-container');
+        const div = document.createElement('div');
+        div.className = 'attendee-row';
+        div.innerHTML = `
+            <input type="text" name="names" placeholder="Attendee Name" required style="flex: 2;">
+            <input type="number" name="rates" placeholder="Hourly Rate ($)" step="0.01" min="0" required style="flex: 1;">
+            <button type="button" class="btn btn-danger" style="width: auto; padding: 0 15px;" onclick="removeRow(this)">X</button>
+        `;
+        container.appendChild(div);
+    }
+
+    function removeRow(btn) {
+        const rows = document.querySelectorAll('.attendee-row');
+        if (rows.length > 1) {
+            btn.parentElement.remove();
+        } else {
+            // Clear inputs instead of removing the last row
+            const inputs = btn.parentElement.querySelectorAll('input');
+            inputs.forEach(input => input.value = '');
+        }
+    }
+</script>
+{% endblock %}
